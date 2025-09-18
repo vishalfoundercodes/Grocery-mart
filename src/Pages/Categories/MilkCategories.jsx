@@ -149,7 +149,7 @@ export default function MilkCategories() {
 
       {categories.map((cat) => (
         <CategorySection
-          key={cat.id}
+          // key={cat.id}
           title={cat.title}
           products={cat.subcategory_first || []}
           onSeeAll={(title) => navigate(`/seeall/${encodeURIComponent(title)}`)}

@@ -11,14 +11,13 @@ import CartManager from "../Context/CartManager";
 
 
 
-export default function Header() {
-   const { cart } = useCart(); // 👈 access cart
-   const [showCart, setShowCart] = useState(false);
-   const [addressOpen, setAddressOpen] = useState(false);
-   const { location, address } = useLocation();
+export default function Header({ onSearchResults }) {
+  const { cart } = useCart(); // 👈 access cart
+  const [showCart, setShowCart] = useState(false);
+  const [addressOpen, setAddressOpen] = useState(false);
+  const { location, address } = useLocation();
 
-
-   const totalItems = cart.items.reduce((sum, item) => sum + item.qty, 0);
+  const totalItems = cart.items.reduce((sum, item) => sum + item.qty, 0);
   const placeholders = [
     'Search "milk"',
     'Search "bread"',
@@ -28,12 +27,15 @@ export default function Header() {
 
   const [index, setIndex] = useState(0);
   const [animating, setAnimating] = useState(false);
-   const [open, setOpen] = useState(false);
-   const [openprofile, setOpenProfile] = useState(false);
-  const [locationOpen, setLocationOpen] = useState(false); 
+  const [open, setOpen] = useState(false);
+  const [openprofile, setOpenProfile] = useState(false);
+  const [locationOpen, setLocationOpen] = useState(false);
   const navigate = useNavigate();
 
-  const userid=localStorage.getItem("userId")
+  const [searchTerm, setSearchTerm] = useState("");
+  const [results, setResults] = useState([]);
+
+  const userid = localStorage.getItem("userId");
   useEffect(() => {
     const interval = setInterval(() => {
       setAnimating(true);
@@ -46,199 +48,298 @@ export default function Header() {
     return () => clearInterval(interval);
   }, []);
 
- return (
-   <header className="w-full shadow-md bg-white sticky top-0 z-20">
-     <div className="mx-auto px-1 sm:px-4 py-3 md:py-4">
-       {/* ---------- Mobile Layout (<= 500px) ---------- */}
-       <div className="flex items-center justify-between sm:hidden">
-         <span
-           className="text-sm font-bold cursor-pointer"
-           onClick={() => navigate("/")}
-         >
-           <span className="text-yellow-400">Grocery</span>
-           <span className="text-green-600">mart</span>
-         </span>
-         {/* Left side (delivery + address) */}
-         <div
-           className="flex flex-col  cursor-pointer"
-           onClick={() => setLocationOpen(true)}
-         >
-           <p className="font-semibold text-sm">Delivery in 12 minutes</p>
-           <p className="text-xs text-gray-600 truncate max-w-[200px]">
-             {/* 3/62, Janki Vihar Colony, Jankip... */}
-             {address || "select your location"}
-           </p>
-         </div>
+  // 🔎 Search API call
+  // useEffect(() => {
+  //   const fetchProducts = async () => {
+  //     if (!searchTerm.trim()) return;
+  //     try {
+  //       const response = await fetch(
+  //         `https://root.grocerya2z.com/api/products_search?name=${searchTerm}`
+  //       );
+  //       const data = await response.json();
+  //       console.log("Search results:", data);
+  //       setResults(data); // if you want to use later
+  //     } catch (err) {
+  //       console.error("Error fetching search results", err);
+  //     }
+  //   }
+  //       const delayDebounce = setTimeout(() => {
+  //     fetchProducts();
+  //   }, 500); // debounce 500ms
 
-         {/* Right side (profile icon → opens login modal) */}
-         {!userid ? (
-           <button
-             className="text-gray-800 font-medium"
-             onClick={() => setOpen(true)}
-             aria-haspopup="dialog"
-           >
-             Login
-           </button>
-         ) : (
-           <>
-             <div className="flex flex-col">
-               <button
-                 onClick={() => setOpenProfile(true)}
-                 aria-label="Login"
-                 className="p-2 rounded-full hover:bg-gray-100"
-               >
-                 <User className="w-6 h-6 text-gray-700" />
-               </button>
-               {totalItems == 0 ? (
-                 <button className="flex items-center gap-2 bg-gray-100 px-3 py-2 rounded-lg">
-                   <ShoppingCart className="w-5 h-5 text-gray-600" />
-                   <span className="font-semibold hidden sm:block">
-                     My Cart
-                   </span>
-                 </button>
-               ) : (
-                 <button
-                   className="flex items-center gap-2 bg-green-600 text-white px-3 py-2 rounded-lg"
-                   onClick={() => setShowCart(true)} // 👈 open
-                 >
-                   <ShoppingCart className="w-5 h-5" />
-                   <div className="text-left leading-tight">
-                     <div className="text-sm font-semibold">
-                       {totalItems} items
-                     </div>
-                     <div className="text-xs font-medium">
-                       ₹{cart.totalPrice}
-                     </div>
-                   </div>
-                 </button>
-               )}
-             </div>
-           </>
-         )}
-       </div>
+  //   return () => clearTimeout(delayDebounce);
+  // }, [searchTerm]);
 
-       {/* Search Bar for mobile */}
-       <div className="mt-2 sm:hidden">
-         <div className="relative flex items-center w-full bg-gray-100 rounded-lg px-3 py-2">
-           <Search className="text-gray-500 w-5 h-5 mr-2" />
-           <input
-             type="text"
-             className="w-full bg-transparent text-sm focus:outline-none placeholder-gray-400"
-             placeholder="Search 'milk'"
-           />
-         </div>
-       </div>
+  useEffect(() => {
+    const fetchProducts = async () => {
+      if (!searchTerm.trim()) {
+        onSearchResults([]); // clear if empty
+        return;
+      }
+      try {
+        const res = await fetch(
+          `https://root.grocerya2z.com/api/products_search?name=${searchTerm}`
+        );
+        const data = await res.json();
 
-       {/* ---------- Desktop Layout (> 500px) ---------- */}
-       <div className="hidden sm:flex items-center justify-between">
-         {/* Left Section */}
-         <div className="flex items-center gap-4">
-           <span
-             className="text-3xl font-bold cursor-pointer"
-             onClick={() => navigate("/")}
-           >
-             <span className="text-yellow-400">Grocery</span>
-             <span className="text-green-600">mart</span>
-           </span>
-           <div onClick={() => setLocationOpen(true)}>
-             <p className="font-semibold">Delivery in 12 minutes</p>
-             <p className="text-sm text-gray-600 truncate max-w-[180px]">
-               {/* 3/62, Janki Vihar Colony, Jankip... */}
-               {address || "Select your address"}
-             </p>
-           </div>
-         </div>
+        if (data.success && Array.isArray(data.search)) {
+          const mapped = data.search.map((p) => ({ 
+            id: p.id,
+            title: p.name,
+            image: p.produt_image?.[0] || "",
+            price: p.price,
+            oldPrice: p.mrp,
+            weight: p.unit,
+            time: "12 MINS",
+          }));
+          onSearchResults(mapped, searchTerm);
+        } else {
+          onSearchResults([]);
+        }
+      } catch (err) {
+        console.error("Search error", err);
+        onSearchResults([]);
+      }
+    };
 
-         {/* Search Bar */}
-         <div className="flex-1 mx-4">
-           <div className="relative flex items-center w-full bg-gray-100 rounded-lg px-3 py-2 overflow-hidden">
-             <Search className="text-gray-500 w-5 h-5 mr-2" />
-             <input
-               type="text"
-               className="w-full bg-transparent text-sm focus:outline-none placeholder-transparent"
-               placeholder={placeholders[index]}
-             />
-             {/* Animated Placeholder Overlay */}
-             <div className="absolute left-10 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none h-5 overflow-hidden">
-               <div
-                 className={`transition-transform duration-500`}
-                 style={{
-                   transform: animating ? `translateY(-100%)` : `translateY(0)`,
-                 }}
-               >
-                 <div className="h-5 flex items-center">
-                   {placeholders[index]}
-                 </div>
-                 <div className="h-5 flex items-center">
-                   {placeholders[(index + 1) % placeholders.length]}
-                 </div>
-               </div>
-             </div>
-           </div>
-         </div>
+    const delay = setTimeout(fetchProducts, 500);
+    return () => clearTimeout(delay);
+  }, [searchTerm, onSearchResults]);
 
-         {/* Right Section */}
-         <div className="flex items-center gap-4">
-           {!userid ? (
-             <button
-               className="text-gray-800 font-medium"
-               onClick={() => setOpen(true)}
-               aria-haspopup="dialog"
-             >
-               Login
-             </button>
-           ) : (
-             <button
-               onClick={() => setOpenProfile(true)}
-               aria-label="Login"
-               className="p-2 rounded-full hover:bg-gray-100"
-             >
-               <User className="w-6 h-6 text-gray-700" />
-             </button>
-           )}
+  return (
+    <header className="w-full shadow-md bg-white sticky top-0 z-20 ">
+      <div className="mx-auto px-1 sm:px-4 py-3 md:py-4 ">
+        {/* ---------- Mobile Layout (<= 500px) ---------- */}
+        <div className="flex items-center justify-between sm:hidden ">
+          <span
+            className="text-sm font-bold cursor-pointer"
+            onClick={() => navigate("/")}
+          >
+            <span className="text-yellow-400">Grocery</span>
+            <span className="text-green-600">mart</span>
+          </span>
+          {/* Left side (delivery + address) */}
+          <div
+            className="flex flex-col  cursor-pointer"
+            onClick={() => setLocationOpen(true)}
+          >
+            <p className="font-semibold text-sm">Delivery in 12 minutes</p>
+            <p className="text-xs text-gray-600 truncate max-w-[200px]">
+              {/* 3/62, Janki Vihar Colony, Jankip... */}
+              {address || "select your location"}
+            </p>
+          </div>
 
-           {totalItems == 0 ? (
-             <button className="flex items-center gap-2 bg-gray-100 px-3 py-2 rounded-lg">
-               <ShoppingCart className="w-5 h-5 text-gray-600" />
-               <span className="font-semibold hidden sm:block">My Cart</span>
-             </button>
-           ) : (
-             <button
-               className="flex items-center gap-2 bg-green-600 text-white px-3 py-2 rounded-lg"
-               //  onClick={() => setShowCart(true)} // 👈 open
-               onClick={() => {
-                 setAddressOpen(false); // ensure address is closed
-                 setShowCart(true); // open cart
-               }}
-             >
-               <ShoppingCart className="w-5 h-5" />
-               <div className="text-left leading-tight">
-                 <div className="text-sm font-semibold">{totalItems} items</div>
-                 <div className="text-xs font-medium">
-                   ₹{cart.totalPrice.toFixed(2)}
-                 </div>
-               </div>
-             </button>
-           )}
-         </div>
-       </div>
-     </div>
+          {/* Right side (profile icon → opens login modal) */}
+          {!userid ? (
+            <button
+              className="text-gray-800 font-medium"
+              onClick={() => setOpen(true)}
+              aria-haspopup="dialog"
+            >
+              Login
+            </button>
+          ) : (
+            <>
+              <div className="flex flex-col items-center">
+                <button
+                  onClick={() => setOpenProfile(true)}
+                  aria-label="Login"
+                  className="p-2 rounded-full hover:bg-gray-100"
+                >
+                  <User className="w-6 h-6 text-gray-700" />
+                </button>
+                {totalItems == 0 ? (
+                  <button className="flex items-center gap-2 bg-gray-100 px-3 py-2 rounded-lg">
+                    <ShoppingCart className="w-5 h-5 text-gray-600" />
+                    <span className="font-semibold hidden sm:block">
+                      My Cart
+                    </span>
+                  </button>
+                ) : (
+                  <button
+                    className="flex items-center gap-2 bg-green-600 text-white px-1 py-1 rounded-lg"
+                    onClick={() => setShowCart(true)} // 👈 open
+                  >
+                    <ShoppingCart className="w-5 h-5" />
+                    <div className="text-left leading-tight">
+                      <div className="text-xs font-semibold">
+                        {totalItems} items
+                      </div>
+                      <div className="text-xs font-medium">
+                        ₹{cart.totalPrice.toFixed(2)}
+                      </div>
+                    </div>
+                  </button>
+                )}
+              </div>
+            </>
+          )}
+        </div>
 
-     {/* Login Modal */}
-     <LoginModal open={open} onClose={() => setOpen(false)} />
-     <LocationModal
-       open={locationOpen}
-       onClose={() => setLocationOpen(false)}
-     />
-     {/* <CartSidebar open={showCart} onClose={() => setShowCart(false)} /> */}
-     <CartManager
-       cartOpen={showCart}
-       setCartOpen={setShowCart}
-       addressOpen={addressOpen}
-       setAddressOpen={setAddressOpen}
-     />
+        {/* Search Bar for mobile */}
+        <div className="mt-2 sm:hidden">
+          <div className="relative flex items-center w-full bg-gray-100 rounded-lg px-3 py-2">
+            <Search className="text-gray-500 w-5 h-5 mr-2" />
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full bg-transparent text-sm focus:outline-none placeholder-gray-400"
+              //  className="w-full bg-transparent text-sm focus:outline-none placeholder-gray-400"
+              placeholder="Search 'milk'"
+            />
+          </div>
+        </div>
 
-     <ProfileHome open={openprofile} onClose={() => setOpenProfile(false)} />
-   </header>
- );
+        {/* ---------- Desktop Layout (> 500px) ---------- */}
+        <div className="hidden sm:flex items-center justify-between">
+          {/* Left Section */}
+          <div className="flex items-center gap-4">
+            <span
+              className="text-3xl font-bold cursor-pointer"
+              onClick={() => navigate("/")}
+            >
+              <span className="text-yellow-400">Grocery</span>
+              <span className="text-green-600">mart</span>
+            </span>
+            <div onClick={() => setLocationOpen(true)}>
+              <p className="font-semibold">Delivery in 12 minutes</p>
+              <p className="text-sm text-gray-600 truncate max-w-[180px]">
+                {/* 3/62, Janki Vihar Colony, Jankip... */}
+                {address || "Select your address"}
+              </p>
+            </div>
+          </div>
+
+          {/* Search Bar */}
+          <div className="flex-1 mx-4">
+            <div className="relative flex items-center w-full bg-gray-100 rounded-lg px-3 py-2 overflow-hidden">
+              <Search className="text-gray-500 w-5 h-5 mr-2" />
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full bg-transparent text-sm focus:outline-none placeholder-gray-400"
+                placeholder={searchTerm ? "" : placeholders[index]} // ✅ hide when typing
+              />
+
+              {/* Animated Placeholder Overlay */}
+              {searchTerm === "" && ( // ✅ Only show when empty
+                <div className="absolute left-10 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none h-5 overflow-hidden">
+                  <div
+                    className={`transition-transform duration-500`}
+                    style={{
+                      transform: animating
+                        ? `translateY(-100%)`
+                        : `translateY(0)`,
+                    }}
+                  >
+                    <div className="h-5 flex items-center">
+                      {placeholders[index]}
+                    </div>
+                    <div className="h-5 flex items-center">
+                      {placeholders[(index + 1) % placeholders.length]}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Right Section */}
+          <div className="flex items-center gap-4">
+            {!userid ? (
+              <button
+                className="text-gray-800 font-medium"
+                onClick={() => setOpen(true)}
+                aria-haspopup="dialog"
+              >
+                Login
+              </button>
+            ) : (
+              <button
+                onClick={() => setOpenProfile(true)}
+                aria-label="Login"
+                className="p-2 rounded-full hover:bg-gray-100"
+              >
+                <User className="w-6 h-6 text-gray-700" />
+              </button>
+            )}
+
+            {/* {totalItems == 0 ? (
+              <button className="flex items-center gap-2 bg-gray-100 px-3 py-2 rounded-lg">
+                <ShoppingCart className="w-5 h-5 text-gray-600" />
+                <span className="font-semibold hidden sm:block">My Cart</span>
+              </button>
+            ) : (
+              <button
+                className="flex items-center gap-2 bg-green-600 text-white px-3 py-2 rounded-lg"
+                //  onClick={() => setShowCart(true)} // 👈 open
+                onClick={() => {
+                  setAddressOpen(false); // ensure address is closed
+                  setShowCart(true); // open cart
+                }}
+              >
+                <ShoppingCart className="w-5 h-5" />
+                <div className="text-left leading-tight">
+                  <div className="text-sm font-semibold">
+                    {totalItems} items
+                  </div>
+                  <div className="text-xs font-medium">
+                    ₹{cart.totalPrice.toFixed(2)}
+                  </div>
+                </div>
+              </button>
+            )} */}
+
+            {!userid || totalItems == 0 ? (
+              <button className="flex items-center gap-2 bg-gray-100 px-3 py-2 rounded-lg">
+                <ShoppingCart className="w-5 h-5 text-gray-600" />
+                <span className="font-semibold hidden sm:block">My Cart</span>
+              </button>
+            ) : (
+              <button
+                className={`flex items-center gap-2 px-3 py-2 rounded-lg ${
+                  totalItems > 0
+                    ? "bg-green-600 text-white"
+                    : "bg-green-600 text-white opacity-80"
+                }`}
+                onClick={() => {
+                  setAddressOpen(false);
+                  setShowCart(true);
+                }}
+              >
+                <ShoppingCart className="w-5 h-5" />
+                <div className="text-left leading-tight">
+                  <div className="text-sm font-semibold">
+                    {totalItems} items
+                  </div>
+                  <div className="text-xs font-medium">
+                    ₹{cart.totalPrice?.toFixed(2) || "0.00"}
+                  </div>
+                </div>
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Login Modal */}
+      <LoginModal open={open} onClose={() => setOpen(false)} />
+      <LocationModal
+        open={locationOpen}
+        onClose={() => setLocationOpen(false)}
+      />
+      {/* <CartSidebar open={showCart} onClose={() => setShowCart(false)} /> */}
+      <CartManager
+        cartOpen={showCart}
+        setCartOpen={setShowCart}
+        addressOpen={addressOpen}
+        setAddressOpen={setAddressOpen}
+      />
+
+      <ProfileHome open={openprofile} onClose={() => setOpenProfile(false)} />
+    </header>
+  );
 }

@@ -60,7 +60,9 @@ export default function FooterLinks() {
           <h3 className="font-semibold text-lg mb-4">Useful Links</h3>
           <ul className="grid grid-rows-6 grid-flow-col gap-2 text-sm">
             {usefulLinks.map((link, i) => (
-              <li key={i} className="whitespace-nowrap">
+              <li
+              //  key={i} 
+              className="whitespace-nowrap">
                 {link}
               </li>
             ))}
@@ -77,7 +79,9 @@ export default function FooterLinks() {
           </h3>
           <ul className="grid grid-rows-12 grid-flow-col gap-2 text-xsm sm:text-sm">
             {categories.map((link, i) => (
-              <li key={i} className="whitespace-nowrap">
+              <li
+            //  key={i} 
+             className="whitespace-nowrap">
                 {link}
               </li>
             ))}

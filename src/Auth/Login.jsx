@@ -5,6 +5,8 @@ import { toast } from "react-toastify";
 import { useLoginUserMutation } from "../store/api";
 import { useDispatch } from "react-redux";
 import { setUser } from "../store/slices/userSlice";
+import { useCart } from "../Context/CartContext";
+import  OTPVerification  from "./Otp";
 export default function LoginModal({
   open,
   onClose,
@@ -17,7 +19,9 @@ const dispatch = useDispatch();
   const [mobile, setMobile] = useState("");
   const [touched, setTouched] = useState(false);
   const [error, setError] = useState("");
+  const [showOTP, setShowOTP] = useState(false);
 
+const { fetchCart } = useCart();
   // Close on Escape
   useEffect(() => {
     if (!open) return;
@@ -76,7 +80,8 @@ const dispatch = useDispatch();
     try {
       // console.log("login api",apis.login)
       const payload = {
-        mobile: mobile
+        mobile: mobile,
+        fcm_tokens:"dQ7f34tRTKiwtvRuyAY6ap:APA91bGYusQGemjwrLmLJSKO-VvC5c6KCO3Ch1rzHizEhI8_NjyjDZUvjchMCk-xWlpCJ3i66eY5d60xB662HVStrHZSZ-D6Xwe3rMmKBlhqRHqt41IBiGw",
       };
       console.log("login api payload", payload);
       // const res = await axios.post(apis.login, payload);
@@ -87,7 +92,14 @@ const dispatch = useDispatch();
         dispatch(setUser(res?.data));
         localStorage.setItem("userId", res?.data?.id);
         // console.log("login msg:", res?.data?.msg);
+
+        // useEffect(() => {
+        // const userId = localStorage.getItem("userId");
+        fetchCart(res?.data?.id, true);
+        // }, []);
         toast.success(res?.msg || "Successfull login you are");
+        // 👇 Show OTP screen now
+        setShowOTP(true);
       }
       else{
         toast.error("Something went wrong")
@@ -97,7 +109,7 @@ const dispatch = useDispatch();
       toast.error("Something went wrong");
     }
  
-    onClose();
+    // onClose();
   };
 
   if (!open) return null;
@@ -157,69 +169,89 @@ const dispatch = useDispatch();
           </div>
 
           {/* heading */}
-          <div className="mt-2 text-center">
-            <h2 className="text-xl sm:text-2xl font-bold text-gray-800">
-              India's last minute app
-            </h2>
-            <p className="mt-0 text-sm text-[#43403e]">Log in or Sign up</p>
-          </div>
+          {showOTP ? (
+            <>
+              <div className=" text-center">
+                <h2 className="text-xl font-semibold mb-2">OTP Verification</h2>
+                <p className="text-sm text-gray-600 mb-4">
+                  We have sent a verification code to <br />
+                  <strong>+91-{mobile}</strong>
+                </p>
+              </div>
+            </>
+          ) : (
+            <div className="mt-2 text-center">
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-800">
+                India's last minute app
+              </h2>
+              <p className="mt-0 text-sm text-[#43403e]">Log in or Sign up</p>
+            </div>
+          )}
 
           {/* input + button */}
           <div className="mt-6 flex flex-col items-center">
-            <div className="w-72">
-              <div className="flex items-center gap-4 rounded-lg border border-gray-200 px-2 py-2">
-                <span className="text-sm text-gray-700">+91</span>
-                <input
-                  id="mobile"
-                  type="tel"
-                  inputMode="numeric"
-                  value={mobile}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  placeholder="Enter mobile number"
-                  className="w-full outline-none text-sm placeholder-gray-400"
-                  aria-invalid={!!error}
-                  aria-describedby="mobile-error"
-                />
-              </div>
+            {!showOTP ? (
+              // Login Screen (your existing UI)
+              <>
+                <div className="w-72">
+                  <div className="flex items-center gap-4 rounded-lg border border-gray-200 px-2 py-2">
+                    <span className="text-sm text-gray-700">+91</span>
+                    <input
+                      id="mobile"
+                      type="tel"
+                      inputMode="numeric"
+                      value={mobile}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      placeholder="Enter mobile number"
+                      className="w-full outline-none text-sm placeholder-gray-400"
+                      aria-invalid={!!error}
+                      aria-describedby="mobile-error"
+                    />
+                  </div>
 
-              {/* error */}
-              <div className="mt-2 text-center">
-                {error ? (
-                  <p id="mobile-error" className="text-xs text-red-600">
-                    {error}
-                  </p>
-                ) : (
-                  <div className="" />
-                )}
-              </div>
+                  {/* error */}
+                  <div className="mt-2 text-center">
+                    {error ? (
+                      <p id="mobile-error" className="text-xs text-red-600">
+                        {error}
+                      </p>
+                    ) : (
+                      <div className="" />
+                    )}
+                  </div>
 
-              {/* Continue button */}
-              <button
-                type="button"
-                onClick={handleContinue}
-                disabled={!isValid(mobile)}
-                className={`mt-2 w-72 rounded-md py-2 font-medium ${
-                  isValid(mobile)
-                    ? "bg-gray-900 text-white"
-                    : "bg-[#9c9c9c] text-white cursor-not-allowed"
-                }`}
-              >
-                Continue
-              </button>
-            </div>
-
-            {/* terms */}
-            <p className="mt-4 text-xs text-center text-gray-400 w-96">
-              By continuing, you agree to our{" "}
-              <a href="#" className="underline">
-                Terms of service
-              </a>{" "}
-              &amp;{" "}
-              <a href="#" className="underline">
-                Privacy policy
-              </a>
-            </p>
+                  {/* Continue button */}
+                  <button
+                    type="button"
+                    onClick={handleContinue}
+                    disabled={!isValid(mobile)}
+                    className={`mt-2 w-72 rounded-md py-2 font-medium ${
+                      isValid(mobile)
+                        ? "bg-gray-900 text-white"
+                        : "bg-[#9c9c9c] text-white cursor-not-allowed"
+                    }`}
+                  >
+                    Continue
+                  </button>
+                </div>
+                {/* terms */}
+                <p className="mt-4 text-xs text-center text-gray-400 w-96">
+                  By continuing, you agree to our{" "}
+                  <a href="#" className="underline">
+                    Terms of service
+                  </a>{" "}
+                  &amp;{" "}
+                  <a href="#" className="underline">
+                    Privacy policy
+                  </a>
+                </p>
+              </>
+            ) : (
+              <>
+                <OTPVerification mobile={mobile} onClose={onClose} />
+              </>
+            )}
           </div>
         </div>
       </div>

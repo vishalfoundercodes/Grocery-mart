@@ -15,6 +15,7 @@ export default function ProfilePage() {
 
   const [active, setActive] = useState(initialTab);
   const [selectedOrderId, setSelectedOrderId] = useState(null);
+  const [selectedOrder, setSelectedOrder] = useState(null);
 
   useEffect(() => {
     setActive(initialTab);
@@ -30,13 +31,28 @@ export default function ProfilePage() {
       sidebar={<Sidebar active={active} onNavigate={setActive} />}
       content={
         active === "orders" ? (
-          selectedOrderId ? (
+          // selectedOrderId ? (
+          //   // <OrderDetails
+          //   //   orderId={selectedOrderId}
+          //   //   onBack={handleBackToOrders}
+          //   // />
+          //   <OrderDetails
+          //     order={selectedOrderId} // poora order object bhej rahe
+          //     onBack={handleBackToOrders}
+          //   />
+          // ) : (
+          //   <>
+          //     <OrderHistory onSelectOrder={(id) => setSelectedOrderId(id)} />
+          //       {console.log("Selected Order ID:", selectedOrderId)}
+          //   </>
+          // )
+          selectedOrder ? (
             <OrderDetails
-              orderId={selectedOrderId}
-              onBack={handleBackToOrders}
+              order={selectedOrder}
+              onBack={() => setSelectedOrder(null)}
             />
           ) : (
-            <OrderHistory onSelectOrder={(id) => setSelectedOrderId(id)} />
+            <OrderHistory onSelectOrder={(order) => setSelectedOrder(order)} />
           )
         ) : active === "address" ? (
           <Address />

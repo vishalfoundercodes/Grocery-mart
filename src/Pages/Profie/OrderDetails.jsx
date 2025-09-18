@@ -1,12 +1,37 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { FiChevronRight } from "react-icons/fi";
 import { IoArrowBackOutline } from "react-icons/io5";
 import { FaRegCopy } from "react-icons/fa";
+import { useCart } from "../../Context/CartContext";
+import { toast } from "react-toastify";
 
-export default function OrderDetails({ onBack }) {
+export default function OrderDetails({ order, onBack }) {
   const navigate = useNavigate();
   const { id } = useParams();
+     const { orderHistory } = useCart();
+     const [orderData, setOrderData] = useState(order);
+
+     useEffect(() => {
+       const fetchOrder = async () => {
+         if (!orderData?.orderDetail) {
+           const userId = localStorage.getItem("userId");
+           const orders = await orderHistory(userId, true);
+           const foundOrder = orders.find(
+             (o) => o.orderDetail.order_id === order?.orderDetail.order_id
+           );
+           console.log("Fetched order:", foundOrder);
+           setOrderData(foundOrder);
+         }
+       };
+       fetchOrder();
+     }, [order, orderData, orderHistory]);
+
+     useEffect(() => {
+       if (orderData) console.log("✅ Order detail:", orderData);
+     }, [orderData]);
+
+   
 
   return (
     <div className="max-w-2xl mx-auto p-4 space-y-6">
@@ -22,29 +47,48 @@ export default function OrderDetails({ onBack }) {
       {/* Order Summary */}
       <div>
         <h2 className="text-xl font-semibold">Order summary</h2>
-        <p className="text-sm text-gray-500">Arrived at 11:21 pm</p>
+        <p className="text-sm text-gray-500">
+          Delivered in {orderData?.orderDetail?.delivery_time}
+        </p>
         <button className="text-green-600 text-sm font-medium flex items-center mt-1">
           Download Invoice <span className="ml-1 text-lg">📥</span>
         </button>
       </div>
 
       {/* Item list */}
+      {/* Item list */}
       <div>
-        <h3 className="font-semibold mb-3">1 item in this order</h3>
-        <div className="flex justify-between items-center border rounded-lg p-3">
-          <div className="flex items-center space-x-3">
-            <img
-              src="https://via.placeholder.com/48x48.png?text=Img"
-              className="w-12 h-12 bg-gray-100 rounded"
-              alt="product"
-            />
-            <div>
-              <p className="text-sm font-medium">Colour Single side Portrait</p>
-              <p className="text-xs text-gray-500">1 piece x 2</p>
+        <h3 className="font-semibold mb-3">
+          {orderData?.products?.length || 0} item
+          {orderData?.products?.length > 1 ? "s" : ""} in this order
+        </h3>
+
+        {orderData?.products?.map((product, idx) => (
+          <div
+            key={idx}
+            className="flex justify-between items-center border rounded-lg p-3 mb-2"
+          >
+            <div className="flex items-center space-x-3">
+              <img
+                src={
+                  product.produt_image?.[0] ||
+                  "https://via.placeholder.com/48x48.png?text=Img"
+                }
+                className="w-12 h-12 bg-gray-100 rounded object-cover"
+                alt={product.name}
+              />
+              <div>
+                <p className="text-sm font-medium">{product.name}</p>
+                <p className="text-xs text-gray-500">
+                  {product.quantity} piece x ₹{product.price}
+                </p>
+              </div>
             </div>
+            <p className="text-sm font-semibold">
+              ₹{(product.price * product.quantity).toFixed(2)}
+            </p>
           </div>
-          <p className="text-sm font-semibold">₹20</p>
-        </div>
+        ))}
       </div>
 
       {/* Bill details */}
@@ -53,27 +97,27 @@ export default function OrderDetails({ onBack }) {
         <div className="text-sm space-y-1 border-t pt-3">
           <div className="flex justify-between">
             <span>MRP</span>
-            <span>₹38</span>
+            <span>₹{orderData?.orderDetail?.total_amount}</span>
           </div>
           <div className="flex justify-between text-blue-600">
             <span>Product discount</span>
-            <span>-₹18</span>
+            <span>-₹{orderData?.orderDetail?.discount}</span>
           </div>
           <div className="flex justify-between">
             <span>Item total</span>
-            <span>₹20</span>
+            <span>₹{orderData?.orderDetail?.Item_total}</span>
           </div>
           <div className="flex justify-between">
             <span>Handling charge</span>
-            <span>+₹2</span>
+            <span>+₹{orderData?.orderDetail?.handling_charge}</span>
           </div>
           <div className="flex justify-between">
             <span>Delivery charges</span>
-            <span>+₹25</span>
+            <span>+₹{orderData?.orderDetail?.delivery_amount}</span>
           </div>
           <div className="flex justify-between font-semibold pt-2 border-t">
             <span>Bill total</span>
-            <span>₹47</span>
+            <span>₹{orderData?.orderDetail?.bill_total}</span>
           </div>
         </div>
       </div>
@@ -85,22 +129,38 @@ export default function OrderDetails({ onBack }) {
           <div className="flex items-center justify-between">
             <span className="text-gray-500">Order id</span>
             <span className="flex items-center space-x-1 font-medium">
-              <span>ORD128044894</span>
-              <FaRegCopy className="text-gray-500 cursor-pointer text-sm" />
+              <span>{orderData?.orderDetail?.order_id}</span>
+              <FaRegCopy
+                className="text-gray-500 cursor-pointer text-sm"
+                onClick={() => {
+                  navigator.clipboard.writeText(
+                    orderData?.orderDetail?.order_id
+                  );
+                  toast.success("Order ID copied to clipboard!");
+                }}
+              />
             </span>
           </div>
           <div className="flex justify-between">
             <span className="text-gray-500">Payment</span>
-            <span className="font-medium">Paid Online</span>
+            <span className="font-medium">Pay on Delivery</span>
           </div>
           <div>
-            <span className="text-gray-500 block">Deliver to</span>
+            {/* <span className="text-gray-500 block">Deliver to</span>
             <p className="font-medium">
               Vishal Mishra, Ajay Gupta Sector-A, Sector K, Aliganj, Lucknow
-            </p>
+            </p> */}
           </div>
           <div className="text-gray-500">
-            Order placed on Tue, 15 Apr’25, 11:14 PM
+            Order placed on{" "}
+            {new Date(orderData?.orderDetail?.created_at).toLocaleDateString(
+              "en-GB",
+              {
+                day: "2-digit",
+                month: "short",
+                year: "numeric",
+              }
+            )}
           </div>
         </div>
       </div>

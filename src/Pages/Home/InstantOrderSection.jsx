@@ -29,7 +29,9 @@ const items = [
       <div className="mx-auto max-w-7xl px-1 sm:px-1 lg:px-6">
         <div className="grid gap-4 grid-cols-2 lg:grid-cols-3">
           {items.map((card, idx) => (
-            <div key={idx} className="rounded-xl overflow-hidden shadow">
+            <div
+            //  key={idx}
+            className="rounded-xl overflow-hidden shadow">
               <img
                 src={card.img}
                 alt={card.alt}

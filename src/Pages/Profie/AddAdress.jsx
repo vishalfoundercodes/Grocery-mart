@@ -323,6 +323,7 @@ export default function AddAddress({
       setLandmark(addressToEdit.landmark || "");
       setName(addressToEdit.name || "");
       setPhone(addressToEdit.phone || "");
+      console.log("Editing address id:", addressToEdit.id);
     } else {
       setSelectedType("Home");
       setFullAddress("");
@@ -332,6 +333,8 @@ export default function AddAddress({
       setName("");
       setPhone("");
     }
+
+    
   }, [addressToEdit]);
 
   const handleGetCurrentLocation = () => {
@@ -369,20 +372,40 @@ export default function AddAddress({
     );
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+const handleSubmit = (e) => {
+  e.preventDefault();
 
-    onSubmit({
-      type: selectedType,
-      flat,
-      floor,
-      details: fullAddress,
-      landmark,
-      name,
-      phone,
-    });
+  const userId = localStorage.getItem("userId");
+
+  // API format me payload
+  const payload = {
+    userid: userId,
+    workplace: selectedType.toLowerCase(),
+    house_no: flat,
+    locality: fullAddress,
+    mobile: phone || "",
+    latitude: "788995588",
+    longitude: "6896325625",
+    landmark: landmark || "",
   };
 
+  // agar edit kar rahe hain to id bhi bhejo
+  if (addressToEdit) {
+    payload.address_id = addressToEdit.id;
+  }
+
+  // 👇 Convert to FormData
+  const formData = new FormData();
+  Object.keys(payload).forEach((key) => {
+    formData.append(key, payload[key]);
+  });
+
+ console.log("Submitting address:", Object.fromEntries(formData.entries()));
+  onSubmit(formData);
+};
+
+
+ 
   if (!openModal) return null;
 
   return (
@@ -433,7 +456,7 @@ export default function AddAddress({
                     { type: "Other", icon: <MapPin className="w-4 h-4" /> },
                   ].map((btn) => (
                     <button
-                      key={btn.type}
+                      // key={btn.type}
                       type="button"
                       onClick={() => setSelectedType(btn.type)}
                       className={`flex items-center gap-1 px-4 py-2 rounded-full border transition ${
@@ -450,7 +473,11 @@ export default function AddAddress({
               </div>
 
               {/* Inputs */}
-              <form className="space-y-3" onSubmit={handleSubmit}>
+              <form
+                id="addressForm"
+                className="space-y-3"
+                onSubmit={handleSubmit}
+              >
                 <input
                   type="text"
                   placeholder="Flat / House no / Building name *"
@@ -509,7 +536,8 @@ export default function AddAddress({
             <div className="p-4 md:p-6 sticky bottom-0 bg-white z-20 border-t border-gray-200">
               <button
                 type="submit"
-                onClick={handleSubmit}
+                // onClick={handleSubmit}
+                form="addressForm"
                 className="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition"
               >
                 {addressToEdit ? "Update Address" : "Save Address"}

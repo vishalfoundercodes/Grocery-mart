@@ -4,6 +4,8 @@ import { useAddress } from "../Context/AddressContext";
 import AddAddress from "../Pages/Profie/AddAdress";
 import { useLocation } from "../Context/LocationContext";
 import { useSelectedAddress } from "../Context/SelectedAddressContext";
+import { useCart } from "./CartContext";
+import { MoreVertical, Home } from "lucide-react";
 
 export default function AddressCartSlider({ open, onClose }) {
   const [openAddress, setOpenAddress] = useState(false);
@@ -16,7 +18,13 @@ export default function AddressCartSlider({ open, onClose }) {
 
   const dropdownRef = useRef(null); // ✅ Single ref
 
-  const { addresses, addAddress, deleteAddress, updateAddress } = useAddress();
+    const { addresses, fetchAddress, addAddress } = useCart();
+    useEffect(()=>{
+      const userId = localStorage.getItem("userId");  
+      if(userId){
+        fetchAddress(userId,true);
+      }
+    },[])
 
   const handleAddAddress = (newAddress) => {
     if (editAddress) {
@@ -80,68 +88,77 @@ export default function AddressCartSlider({ open, onClose }) {
         <div className="p-4">
           <h3 className="text-sm text-gray-600 mb-3">Your saved address</h3>
 
-          {addresses.map((address) => {
-            const isSelected = selectedAddressId === address.id;
-
-            return (
+          {addresses.map((address) => (
+            <div
+              key={address.id}
+              className="relative flex items-start justify-between p-4 rounded-lg border border-gray-200"
+            >
               <div
-                key={address.id}
-                className={`relative flex items-start justify-between p-4 border rounded-lg mb-2 transition cursor-pointer 
-        ${
-          isSelected
-            ? "bg-green-100 border-green-600"
-            : "bg-gray-50 border-gray-300"
-        }`}
-                //onClick={() => setSelectedAddressId(address.id)} // 👈 Select address
+                //className="flex items-start gap-3"
+                className={`relative flex items-start justify-between p-4 rounded-lg border
+    ${
+      selectedAddressId === address.id
+        ? "border-green-500 bg-green-50"
+        : "border-gray-200"
+    }`}
                 onClick={() => {
-                  setSelectedAddress(address);
-                  setSelectedAddressId(address.id); // highlight selected
+                  console.log("address", address);
+                  console.log("address", address.id);
+                  setSelectedAddress(address); // ✅ this sets the context properly
+                  setSelectedAddressId(address.id); // optional – just for local highlight if needed
+                  onClose(); // ✅ optional – close the address slider after selection
                 }}
               >
+                <div className="w-10 h-10 flex items-center justify-center rounded-lg bg-yellow-100">
+                  <Home className="w-5 h-5 text-yellow-600" />
+                </div>
                 <div>
-                  <p className="font-bold mb-1 flex items-center">🏠 Home</p>
-                  <p className="text-sm text-gray-600 max-w-[250px]">
-                    {address.details}
+                  {/* Name + Mobile */}
+                  <h2 className="font-medium text-gray-900">
+                    {address.deliveryname} ({address.mobile})
+                  </h2>
+                  {/* Address Details */}
+                  <p className="text-sm text-gray-500 leading-snug">
+                    {address.house_no}, {address.landmark}, {address.locality}
                   </p>
                 </div>
-
-                <div className="relative">
-                  <button
-                    className="text-green-600 hover:text-green-800 transition mt-1"
-                    onClick={(e) => {
-                      e.stopPropagation(); // ✅ Prevents click bubbling to outer div
-                      setDropdownOpenId(
-                        dropdownOpenId === address.id ? null : address.id
-                      );
-                    }}
-                  >
-                    <Pencil className="w-4 h-4" />
-                  </button>
-
-                  {dropdownOpenId === address.id && (
-                    <div
-                      ref={dropdownRef}
-                      className="absolute right-0 mt-2 w-32 bg-white border border-gray-200 rounded shadow-md z-10"
-                      onClick={(e) => e.stopPropagation()} // ✅ Prevents close when clicking inside
-                    >
-                      <button
-                        className="block w-full px-4 py-2 text-left text-sm hover:bg-gray-100"
-                        onClick={() => handleEdit(address)}
-                      >
-                        Edit
-                      </button>
-                      <button
-                        className="block w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-gray-100"
-                        onClick={() => deleteAddress(address.id)}
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  )}
-                </div>
               </div>
-            );
-          })}
+
+              <div className="relative">
+                <button
+                  className="text-gray-500 hover:text-gray-700"
+                  onClick={() => {
+                    console.log("dropdown open id:", dropdownOpenId);
+                    console.log("dropdown address id:", address.id);
+                    setDropdownOpenId(
+                      dropdownOpenId === address.id ? null : address.id
+                    );
+                  }}
+                >
+                  <MoreVertical className="w-5 h-5" />
+                </button>
+
+                {dropdownOpenId === address.id && (
+                  <div className="absolute right-0 mt-2 w-32 bg-white border border-gray-200 rounded shadow-md z-10">
+                    <button
+                      className="block w-full px-4 py-2 text-left text-sm hover:bg-gray-100"
+                      onClick={() => {
+                        handleEdit(address), console.log(address);
+                      }}
+                    >
+                      Edit
+                    </button>
+                    <button
+                      className="block w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-gray-100"
+                      onClick={() => handleDelete(address.id)}
+                    >
+                      Delete
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 

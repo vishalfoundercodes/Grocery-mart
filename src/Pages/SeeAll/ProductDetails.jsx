@@ -4,39 +4,48 @@ import minutedelivery from "../../assets/Product/10_minute_delivery.avif";
 import BestPricesOffers from "../../assets/Product/Best_Prices_Offers.avif";
 import WideAssortment from "../../assets/Product/Wide_Assortment.avif";
 import { useCart } from "../../Context/CartContext";
+import { toast } from "react-toastify";
 
 export default function ProductDetails() {
      const { cart, addToCart, increment, decrement } = useCart();
   const { id } = useParams();
   const location = useLocation();
   const product = location.state?.product;
+ const userId = localStorage.getItem("userId");
 
   if (!product) return <p className="text-center mt-10">Loading...</p>;
+   const [selectedImage, setSelectedImage] = useState(product.image);
   useEffect(() => {
     console.log("product details:", product);
+    console.log("cart details:", cart);
   }, []);
   const [isExpanded, setIsExpanded] = useState(false);
 const [showMore, setShowMore] = useState(false);
   // Limit text preview to first 120 characters (adjust as needed)
   const previewText = product.description?.slice(0, 0);
-  const cartItem = cart.items.find((ci) => ci.id === product.id);
+  // const cartItem = cart.items.find((ci) => ci.id === product.id);
+ const cartItem = cart.items.find(
+   (ci) => String(ci.product_id ?? ci.id) === String(product.id)
+ );
+
   return (
     <div className="max-w-6xl mx-auto p-6 grid md:grid-cols-2 gap-6">
       {/* Left Side: Images */}
       <div>
         <img
-          src={product.produt_image}
+          src={selectedImage}
           alt={product.name}
-          className="w-full h-80 object-contain border rounded-lg mb-4"
+          className="w-full h-80 object-contain border rounded-lg mb-4 transition-transform duration-500 ease-in-out hover:scale-150 cursor-zoom-in"
         />
 
         {/* Thumbnail carousel */}
         <div className="flex gap-3 overflow-x-auto">
           {product.produt_image.map((img, idx) => (
             <img
-              key={idx}
+              // key={idx}
               src={img}
               alt="thumb"
+              onClick={() => setSelectedImage(img)}
               className="w-20 h-20 object-contain border rounded-lg cursor-pointer hover:border-green-500"
             />
           ))}
@@ -159,12 +168,12 @@ const [showMore, setShowMore] = useState(false);
           </div>
 
           {/* Add to cart button */}
-
-          {cartItem ? (
+          {userId && cartItem ? (
+            // ✅ Only show -/+ UI if user logged in & item exists in cart
             <div className="flex items-center border border-green-600 rounded-md text-white bg-green-600 h-10">
               <button
                 className="px-2 py-1 hover:bg-green-700 transition-colors"
-                onClick={() => decrement(cartItem.id)}
+                onClick={() => decrement(cartItem)}
               >
                 -
               </button>
@@ -173,7 +182,7 @@ const [showMore, setShowMore] = useState(false);
               </span>
               <button
                 className="px-2 py-1 hover:bg-green-700 transition-colors"
-                onClick={() => increment(cartItem.id)}
+                onClick={() => increment(cartItem)}
               >
                 +
               </button>
@@ -181,7 +190,17 @@ const [showMore, setShowMore] = useState(false);
           ) : (
             <button
               className="px-4 py-1.5 rounded-md h-10 text-sm font-semibold border border-green-600 text-white bg-green-600 hover:bg-green-50 transition-colors"
-              onClick={() => addToCart(product)}
+              onClick={() => {
+                const user_id = localStorage.getItem("userId");
+                if (!user_id) {
+                  toast.error("Please login to add items to cart"); // 👈 show toast
+                  return;
+                }
+                else{
+                  addToCart({ ...product, user_id, product_id: product.id }); // 👈 ensure product_id sent
+                }
+                
+              }}
             >
               Add to cart
             </button>
@@ -218,27 +237,4 @@ const [showMore, setShowMore] = useState(false);
   );
 }
 
-// import { useLocation, useParams } from "react-router-dom";
 
-// export default function ProductDetails() {
-//   const { id } = useParams();
-//   const location = useLocation();
-//   const product = location.state?.product;
-
-//   if (!product) return <p className="text-center mt-10">Loading...</p>;
-
-//   return (
-//     <div className="p-6">
-//       <h1 className="text-xl font-bold">{product.name}</h1>
-//       <img
-//         src={product.image}
-//         alt={product.name}
-//         className="w-60 h-60 object-contain"
-//       />
-//       <p>
-//         {product.weight} {product.grocery_type}
-//       </p>
-//       <p>₹{product.price}</p>
-//     </div>
-//   );
-// }

@@ -26,16 +26,18 @@ import { store } from "./store/store";
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <ToastContainer />
+      <Provider store={store}>
     <LocationProvider>
       <CartProvider>
         <AddressProvider>
           <SelectedAddressProvider>
-            <Provider store={store}>
+          
               <App />
-            </Provider>
+            
           </SelectedAddressProvider>
         </AddressProvider>
       </CartProvider>
     </LocationProvider>
+    </Provider>
   </React.StrictMode>
 );

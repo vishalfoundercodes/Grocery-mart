@@ -35,6 +35,7 @@ import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import { useLocation } from "../Context/LocationContext";
 import { X, Home, Building2, Hotel, MapPin } from "lucide-react";
+import { toast } from "react-toastify";
 // Fix Leaflet marker icon (needed when using with Webpack/CRA/Vite)
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -155,7 +156,8 @@ const handleGetLocation = () => {
     console.log("Current Location:", location);
     reverseGeocode(location.lat, location.lng);
   } else {
-    alert("Location not detected yet.");
+    // alert("Location not detected yet.");
+    toast.error("Location not detected yet.");
   }
 };
 

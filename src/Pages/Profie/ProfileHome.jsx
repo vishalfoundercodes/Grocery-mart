@@ -9,8 +9,10 @@ import {
   ClipboardList,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useCart } from "../../Context/CartContext";
 
 export default function ProfileHome({ open, onClose }) {
+  const { fetchCart } = useCart();
   const dropdownRef = useRef(null);
 const navigate = useNavigate();
   useEffect(() => {
@@ -90,6 +92,7 @@ const navigate = useNavigate();
           className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100"
           onClick={() => {
             localStorage.removeItem("userId");
+            
             navigate("/");
             onClose();
           }}

@@ -57,7 +57,7 @@ export default function AllCategories() {
          const categories1 = data?.categories || [];
          const categories2 = categories1[0].subcategory_first || [];
          const categories = categories2 || [];
-         console.log("category data:", categories2);
+        //  console.log("category data:", categories2);
           // const handleCategoryClick = (title,subcategoryFirst) => {
             //  console.log("category title:",title,
             //    "Subcategory second data:",
@@ -93,7 +93,7 @@ export default function AllCategories() {
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-10 gap-4">
         {categories.map((cat, index) => (
           <div
-            key={index}
+            // key={index}
             className="flex flex-col items-center cursor-pointer"
             onClick={() =>
               handleCategoryClick(cat.title, cat.subcategory_second)

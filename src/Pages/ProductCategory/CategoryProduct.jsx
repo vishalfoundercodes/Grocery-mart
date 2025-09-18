@@ -26,7 +26,9 @@ export default function CategoryWithProducts() {
       <div className="w-1/4 pr-4 border-r">
         <ul className="space-y-2">
           {categories.map((cat) => (
-            <li key={cat.id}>
+            <li
+            //  key={cat.id}
+            >
               <button
                 className={`w-full text-left p-2 rounded-md text-xsm sm:text-sm font-medium ${
                   cat.id === activeCategory.id
