@@ -2,25 +2,36 @@ import React, { useEffect, useRef, useState } from "react";
 import apis from "../utlites/api"
 import axios from "axios"
 import { toast } from "react-toastify";
-import { useLoginUserMutation } from "../store/api";
+
 import { useDispatch } from "react-redux";
 import { setUser } from "../store/slices/userSlice";
 import { useCart } from "../Context/CartContext";
 import  OTPVerification  from "./Otp";
+import {
+  useLoginUserMutation,
+  useSendOtpMutation,
+  useVerifyOtpMutation,
+} from "../store/api";
+
 export default function LoginModal({
   open,
   onClose,
   onContinue = (num) => console.log("continue", num),
 }) {
-  
-const [loginUser, { isLoading }] = useLoginUserMutation();
+
+
+    const handleSendOtp = () => {
+      sendOtp({ mobile }); // ✅ automatically calls API
+    };
 const dispatch = useDispatch();
   const dialogRef = useRef(null);
   const [mobile, setMobile] = useState("");
   const [touched, setTouched] = useState(false);
   const [error, setError] = useState("");
   const [showOTP, setShowOTP] = useState(false);
-
+  const [sendOtp] = useSendOtpMutation();
+  const [verifyOtp] = useVerifyOtpMutation();
+  const [loginUser, { isLoading }] = useLoginUserMutation();
 const { fetchCart } = useCart();
   // Close on Escape
   useEffect(() => {
@@ -44,7 +55,6 @@ const { fetchCart } = useCart();
   useEffect(() => {
     // clear state when opened/closed
     if (!open) {
-      setMobile("");
       setTouched(false);
       setError("");
     }
@@ -69,48 +79,102 @@ const { fetchCart } = useCart();
     );
   };
 
-  const handleContinue = async() => {
-    setTouched(true);
-    if (!isValid(mobile)) {
-      setError("Please enter a valid 10 digit mobile number");
-      return;
-    }
-    setError("");
-    onContinue(mobile);
-    try {
-      // console.log("login api",apis.login)
-      const payload = {
-        mobile: mobile,
-        fcm_tokens:"dQ7f34tRTKiwtvRuyAY6ap:APA91bGYusQGemjwrLmLJSKO-VvC5c6KCO3Ch1rzHizEhI8_NjyjDZUvjchMCk-xWlpCJ3i66eY5d60xB662HVStrHZSZ-D6Xwe3rMmKBlhqRHqt41IBiGw",
-      };
-      console.log("login api payload", payload);
-      // const res = await axios.post(apis.login, payload);
-      // console.log("login res:",res)
-      const res = await loginUser(mobile).unwrap(); // gets raw data
-      console.log("login res", res);
-      if(res?.success===true|| res?.success===200||res?.status===200 ||res?.status==="200"){
-        dispatch(setUser(res?.data));
-        localStorage.setItem("userId", res?.data?.id);
-        // console.log("login msg:", res?.data?.msg);
+  // const handleContinue = async() => {
+  //   setTouched(true);
+  //   if (!isValid(mobile)) {
+  //     setError("Please enter a valid 10 digit mobile number");
+  //     return;
+  //   }
+  //   setError("");
+  //   sendOtp(mobile );
+  //   onContinue(mobile);
+  //   try {
+  //     // console.log("login api",apis.login)
+  //     const payload = {
+  //       mobile: mobile,
+  //       fcm_tokens:"dQ7f34tRTKiwtvRuyAY6ap:APA91bGYusQGemjwrLmLJSKO-VvC5c6KCO3Ch1rzHizEhI8_NjyjDZUvjchMCk-xWlpCJ3i66eY5d60xB662HVStrHZSZ-D6Xwe3rMmKBlhqRHqt41IBiGw",
+  //     };
+  //     console.log("login api payload", payload);
+  //     // const res = await axios.post(apis.login, payload);
+  //     // console.log("login res:",res)
+  //     const res = await loginUser(mobile).unwrap(); // gets raw data
+  //     console.log("login res", res);
+  //     if(res?.success===true|| res?.success===200||res?.status===200 ||res?.status==="200"){
+  //       dispatch(setUser(res?.data));
+  //       localStorage.setItem("userId", res?.data?.id);
+  //       // console.log("login msg:", res?.data?.msg);
 
-        // useEffect(() => {
-        // const userId = localStorage.getItem("userId");
-        fetchCart(res?.data?.id, true);
-        // }, []);
-        toast.success(res?.msg || "Successfull login you are");
-        // 👇 Show OTP screen now
-        setShowOTP(true);
-      }
-      else{
-        toast.error("Something went wrong")
-      }
-    } catch (error) {
-      console.log(error)
-      toast.error("Something went wrong");
-    }
+  //       // useEffect(() => {
+  //       // const userId = localStorage.getItem("userId");
+  //       fetchCart(res?.data?.id, true);
+  //       // }, []);
+  //       toast.success(res?.msg || "Successfull login you are");
+  //       // 👇 Show OTP screen now
+  //       setShowOTP(true);
+  //     }
+  //     else{
+  //       toast.error("Something went wrong")
+  //     }
+  //   } catch (error) {
+  //     console.log(error)
+  //     toast.error("Something went wrong");
+  //   }
  
-    // onClose();
-  };
+  //   onClose();
+ 
+  // };
+
+   const handleContinue = async () => {
+     if (!/^\d{10}$/.test(mobile))
+       return toast.error("Enter valid 10 digit mobile");
+
+     try {
+       const res = await sendOtp({ mobile }).unwrap();
+      //  console.log(res)
+       if (res?.error === "success" || res?.error=="200") {
+         toast.success(res?.msg);
+         setShowOTP(true);
+       } else {
+         toast.error("Failed to send OTP");
+        //  console.log(error);
+       }
+     } catch (err) {
+       toast.error("Error sending OTP");
+     }
+   };
+
+const handleVerifyOtp = async (otpValue) => {
+  // const otp = otpArray.join(""); // convert ["1","2","3","4"] → "1234"
+  try {
+    const res = await verifyOtp({ mobile, otp: otpValue }).unwrap();
+    console.log(res);
+    if (res?.error === "success" || res?.error == "200") {
+      toast.success(res?.msg||"OTP verified ✅");
+
+      // Now call login API
+      const loginRes = await loginUser(mobile).unwrap();
+      if (loginRes?.success) {
+        console.log(loginRes)
+        toast.success("Login successful");
+        localStorage.setItem("userId", loginRes?.data?.id);
+        setShowOTP(false);
+        onClose();
+      } else {
+        toast.error("Login failed");
+      }
+    } else {
+        // setShowOTP(false);
+      toast.error(res?.msg || "OTP verification error");
+    
+      console.log("mobile:", mobile);
+      console.log("otp:", otp);
+      return
+    }
+  } catch (err) {
+    console.log(err);
+  }
+};
+
 
   if (!open) return null;
 
@@ -140,7 +204,14 @@ const { fetchCart } = useCart();
           {/* top row: arrow + logo */}
           <div className="flex items-center justify-between">
             <button
-              onClick={onClose}
+              onClick={()=>{
+                if(showOTP){
+                  setShowOTP(false);
+                }
+                else{
+                   onClose()
+                }
+               }}
               className="text-gray-700 rounded-full p-2 hover:bg-gray-100"
               aria-label="Close modal"
             >
@@ -249,7 +320,11 @@ const { fetchCart } = useCart();
               </>
             ) : (
               <>
-                <OTPVerification mobile={mobile} onClose={onClose} />
+                <OTPVerification
+                  mobile={mobile}
+                  onClose={onClose}
+                  handleVerifyOtp={handleVerifyOtp}
+                />
               </>
             )}
           </div>

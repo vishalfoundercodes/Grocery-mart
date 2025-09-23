@@ -1,0 +1,42 @@
+// import OIP from "../../../src/assets/Categories/AllCategories/OIP.jpg"; // Adjust the path as necessary
+// import paancornerweb from "../../../src/assets/Categories/AllCategories/paan-corner_web.avif"; // Adjust the path as necessary
+// import Slice1 from "../../../src/assets/Categories/AllCategories/Slice-2_10.avif"; // Adjust the path as necessary
+// import Slice2 from "../../../src/assets/Categories/AllCategories/Slice-3_9.avif"; // Adjust the path as necessary
+// import Slice3 from "../../../src/assets/Categories/AllCategories/Slice-4_9.avif"; // Adjust the path as necessary
+// import Slice4 from "../../../src/assets/Categories/AllCategories/Slice-5_4.avif"; // Adjust the path as necessary
+// import Slice5 from "../../../src/assets/Categories/AllCategories/Slice-6_5.avif"; // Adjust the path as necessary
+// import Slice6 from "../../../src/assets/Categories/AllCategories/Slice-7_3.avif"; // Adjust the path as necessary
+// import Slice7 from "../../../src/assets/Categories/AllCategories/Slice-8_4.avif"; // Adjust the path as necessary
+// import Slice8 from "../../../src/assets/Categories/AllCategories/Slice-9_3.avif"; // Adjust the path as necessary
+// import Slice9 from "../../../src/assets/Categories/AllCategories/Slice-10.avif"; // Adjust the path as necessary
+// const categories = [
+//   { name: "Paan Corner", img: paancornerweb },
+//   { name: "Dairy, Bread & Eggs", img: Slice1 },
+//   { name: "Fruits & Vegetables", img: Slice2 },
+//   { name: "Cold Drinks & Juices", img: Slice3 },
+//   { name: "Snacks & Munchies", img: Slice4 },
+//   {
+//     name: "Breakfast & Instant Food",
+//     img: Slice5,
+//   },
+//   { name: "Sweet Tooth", img: Slice6 },
+//   { name: "Bakery & Biscuits", img: Slice7 },
+//   {
+//     name: "Tea, Coffee & Health Drink",
+//     img: Slice8,
+//   },
+//   { name: "Atta, Rice & Dal", img: Slice9 },
+//   { name: "Masala, Oil & More", img: Slice9 },
+//   { name: "Sauces & Spreads", img: Slice8 },
+//   { name: "Chicken, Meat & Fish", img: Slice7 },
+//   {
+//     name: "Organic & Healthy Living",
+//     img: Slice6,
+//   },
+//   { name: "Baby Care", img: Slice5 },
+//   { name: "Pharma & Wellness", img: Slice4 },
+//   { name: "Cleaning Essentials", img: Slice3 },
+//   { name: "Home & Office", img: Slice2 },
+//   { name: "Personal Care", img: Slice1 },
+//   { name: "Pet Care", img: paancornerweb },
+// ];

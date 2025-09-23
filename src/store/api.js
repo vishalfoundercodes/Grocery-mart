@@ -122,6 +122,32 @@ export const api = createApi({
         body: { user_id },
       }),
     }),
+    // https://root.grocerya2z.com/api/getTermPolicy
+    // 🔍 policies history api
+    policies: builder.mutation({
+      query: ({ type }) => ({
+        url: "getTermPolicy",
+        method: "POST",
+        body: { type },
+      }),
+    }),
+
+    // 🔑 Send OTP API
+    sendOtp: builder.mutation({
+      query: ({ mobile, digit = 4, mode = "test" }) => ({
+        url: `https://otp.fctechteam.org/send_otp.php`,
+        method: "GET",
+        params: { mode, digit, mobile },
+      }),
+    }),
+    // inside endpoints in src/store/api.js
+    verifyOtp: builder.mutation({
+      query: ({ mobile, otp }) => ({
+        url: `https://otp.fctechteam.org/verifyotp.php`,
+        method: "GET",
+        params: { mobile, otp },
+      }),
+    }),
     // We'll add getCategories here later
   }),
 });
@@ -140,4 +166,7 @@ export const {
   useDeleteProductMutation,
   useOrderPlacedMutation,
   useGetProductsSearchQuery,
+  useSendOtpMutation,
+  useVerifyOtpMutation,
+  usePoliciesMutation,
 } = api;

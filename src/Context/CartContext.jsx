@@ -256,6 +256,8 @@ import {
   useViewAddressMutation,
   useAddAddressMutation,
   useDeleteAddressMutation,
+  useSendOtpMutation,
+  usePoliciesMutation
 } from "../store/api";
 import { toast } from "react-toastify";
 
@@ -308,6 +310,8 @@ export const CartProvider = ({ children }) => {
   const [OrderHistoryApi] = useOrderHistoryMutation();
   const [cartUpdateApi] = useCartUpdateMutation();
   const [deleteProductApi] = useDeleteProductMutation();
+  const [otpSendApi]=useSendOtpMutation()
+  const [policiesApi]=usePoliciesMutation()
   const userId = localStorage.getItem("userId");
 
   // Track loading states for individual products
@@ -367,9 +371,9 @@ export const CartProvider = ({ children }) => {
     try {
       const res = await viewCartApi({ user_id }).unwrap();
       // console.log("user_id in fetch cart",res)
-      if (log) {
-        console.log("✅ Cart fetched successfully:", res);
-      }
+      // if (log) {
+      //   console.log("✅ Cart fetched successfully:", res);
+      // }
 
       // ✅ Handle both success=true with data and success=false (No Data Found)
       if (res.success && res.add_to_cart && res.add_to_cart.length > 0) {
@@ -433,9 +437,9 @@ const fetchAddress = async (userid, log = false) => {
   try {
     const userId=localStorage.getItem("userId")
     const res = await viewAddressApi({ userid }).unwrap();
-    if (log) {
-      console.log("✅ Address fetched successfully:", res);
-    }
+    // if (log) {
+    //   console.log("✅ Address fetched successfully:", res);
+    // }
 
     if (res.success && res.address && res.address.length > 0) {
       setAddresses(res.address); // ✅ yaha save karo
@@ -620,6 +624,29 @@ const deleteAddress=async(payload)=>{
     }
   };
 
+  // policies
+  const policies=async(payload)=>{
+    try {
+      const res = await policiesApi(payload).unwrap()
+      // console.log(res)
+      return res
+    } catch (error) {
+      console.log(error)
+      return null
+    }
+  }
+  // otp send
+  const otpSend=async(payload)=>{
+ try {
+   const res = await otpSendApi(payload).unwrap();
+   console.log("send otp res:",res)
+   return res;
+ } catch (error) {
+   console.error("❌ Otp send failed", error);
+   toast.error("Failed to send otp");
+   return null;
+ }
+  }
   return (
     <CartContext.Provider
       value={{
@@ -636,6 +663,8 @@ const deleteAddress=async(payload)=>{
         addresses, // ✅ yaha export kar
         setAddresses,
         isProductLoading, // Export loading state checker
+        otpSend,
+        policies,
       }}
     >
       {children}

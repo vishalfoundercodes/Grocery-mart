@@ -17,6 +17,9 @@ export default {
       "3xl": "1836px",
     },
     extend: {
+      colors: {
+        oldsilver: "#828282", // 👈 Added custom color
+      },
       keyframes: {
         translateAnimation: {
           "0%": { transform: "translate(0, 0)" },
@@ -40,8 +43,10 @@ export default {
       fontFamily: {
         roboto: [" roboto, sans-serif;"],
         inter: ["Inter", "sans-serif"],
+        okra: ["Okra", "Helvetica", "sans-serif"],
       },
       fontSize: {
+        ssm: "9px",
         xs: "11px",
         xsm: "13.86px",
         sm: "16px",
