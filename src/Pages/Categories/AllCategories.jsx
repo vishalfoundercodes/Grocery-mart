@@ -62,19 +62,24 @@
 
 /* eslint-disable react/prop-types */
 import React from "react";
-import { useGetCategoriesQuery } from "../../store/api";
+import { useGetCategoriesHomeQuery,  } from "../../store/api";
 import { useNavigate } from "react-router-dom";
 
 export default function AllCategories() {
-  const { data, isLoading, isError } = useGetCategoriesQuery();
+  const { data, isLoading, isError } = useGetCategoriesHomeQuery();
   const navigate = useNavigate();
 
-  const handleCategoryClick = (title, subcategoryFirst) => {
-    navigate(`/seeall/${encodeURIComponent(title)}`, {
-      state: { subcategoryFirst },
-    });
-  };
-
+  // const handleCategoryClick = (title, subcategoryFirst) => {
+  //   navigate(`/seeall/${encodeURIComponent(title)}`, {
+  //     state: { subcategoryFirst },
+  //   });
+  // };
+const handleCategoryClick = (category) => {
+  const { title, subcategory_first } = category;
+  navigate(`/seeall/${encodeURIComponent(title)}`, {
+    state: { subcategoryFirst: subcategory_first },
+  });
+};
   // Skeleton loader component
   const SkeletonCard = () => (
     <div className="flex flex-col items-center animate-pulse">
@@ -100,10 +105,12 @@ export default function AllCategories() {
       <p className="text-center text-red-500">Failed to load categories.</p>
     );
   }
+  console.log("Allcategory data:", data?.categories_section);
 
-  const categories1 = data?.categories || [];
-  const categories2 = categories1[0]?.subcategory_first || [];
-  const categories = categories2 || [];
+  const categories1 = data?.categories_section || [];
+  const categories2 = categories1.categories[0]?.subcategory_first || [];
+  // Assuming data comes from the API and categories are nested under `categories_section`
+  const categories = data?.categories_section?.categories || [];
 
   return (
     <div className="xsm:px-16 xsm:py-6">
@@ -113,7 +120,7 @@ export default function AllCategories() {
             key={index}
             className="flex flex-col items-center cursor-pointer"
             onClick={() =>
-              handleCategoryClick(cat.title, cat.subcategory_second)
+              handleCategoryClick(cat)
             }
           >
             <div className="w-full bg-white rounded-xl shadow hover:shadow-lg transition">

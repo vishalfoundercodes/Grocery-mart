@@ -191,9 +191,9 @@ function CategorySection({ title, products, onSeeAll }) {
     return (
       <div className="w-full px-4 md:px-6 mb-8">
         {/* Header with search term */}
-        <div className="flex justify-between items-center mb-3">
+        {/* <div className="flex justify-between items-center mb-3">
           <h2 className="text-lg md:text-xl font-bold">{title}</h2>
-        </div>
+        </div> */}
 
         {/* Grid layout */}
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
@@ -250,16 +250,16 @@ function CategorySection({ title, products, onSeeAll }) {
                     {cartItem ? (
                       <div className="flex items-center border border-green-600 rounded-md text-white bg-green-600">
                         <button
-                          className="px-2 py-1"
+                          className="pl-1 py-1"
                           onClick={() => decrement(item)}
                         >
                           -
                         </button>
-                        <span className="px-3 text-sm font-semibold">
+                        <span className="px-2 text-sm font-semibold">
                           {cartItem.qty}
                         </span>
                         <button
-                          className="px-2 py-1"
+                          className="pl-1 py-1"
                           onClick={() =>{ 
                             const user_id = localStorage.getItem("userId");
                             increment(...item, user_id),
@@ -383,10 +383,10 @@ function CategorySection({ title, products, onSeeAll }) {
                         </span>
                         <button
                           className="px-2 py-1 "
-                           
                           onClick={() => {
                             const user_id = localStorage.getItem("userId");
-                            increment(item.id)}}
+                            increment(item.id);
+                          }}
                         >
                           +
                         </button>
@@ -401,6 +401,37 @@ function CategorySection({ title, products, onSeeAll }) {
                       >
                         ADD
                       </button>
+                      // <div className="relative inline-block">
+                      //   <button
+                      //     className={`px-2 py-1 rounded-md text-xsm font-semibold border transition-colors min-w-[60px] ${
+                      //       isLoading
+                      //         ? "border-gray-300 text-gray-400 bg-gray-100 cursor-not-allowed"
+                      //         : "border-green-600 text-green-600 bg-white hover:bg-green-50"
+                      //     }`}
+                      //     onClick={() => {
+                      //       if (!isLoading) {
+                      //         const user_id = localStorage.getItem("userId");
+                      //         addToCart({ ...item, user_id });
+                      //       }
+                      //     }}
+                      //     disabled={isLoading}
+                      //   >
+                      //     {isLoading ? (
+                      //       <div className="flex items-center justify-center">
+                      //         <div className="w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full animate-spin"></div>
+                      //       </div>
+                      //     ) : (
+                      //       "ADD"
+                      //     )}
+                      //   </button>
+
+                      //   {/* Positioned "2 options" text */}
+                      //   {!isLoading && (
+                      //     <span className="absolute left-1/2 -translate-x-1/2 bottom-[-0.40rem] text-ssm text-oldsilver flex whitespace-nowrap bg-white px-1">
+                      //       2 options
+                      //     </span>
+                      //   )}
+                      // </div>
                     )}
                   </div>
                 </div>

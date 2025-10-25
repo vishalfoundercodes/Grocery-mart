@@ -542,7 +542,7 @@ const deleteAddress=async(payload)=>{
 
     try {
       const updatedQty = product.qty + 1;
-
+      // console.log("product",product)
       // Make API call and wait for response
       await cartUpdateApi({
         cart_id: product.cart_id,
@@ -552,7 +552,7 @@ const deleteAddress=async(payload)=>{
         amount: product.price * updatedQty,
       }).unwrap();
 
-      // console.log("✅ Increment API successful", product.user_id);
+      // console.log("✅ Increment API successful", product);
 
       // Fetch updated cart from server
       await fetchCart(Number(product.user_id), false);

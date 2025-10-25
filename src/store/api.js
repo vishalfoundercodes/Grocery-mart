@@ -2,7 +2,7 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 const baseUrl = "https://root.grocerya2z.com/api/";
-
+// https://root.grocerya2z.com/api/HomeListApi
 export const api = createApi({
   reducerPath: "api",
   baseQuery: fetchBaseQuery({ baseUrl }),
@@ -19,6 +19,13 @@ export const api = createApi({
     getCategories: builder.query({
       query: () => ({
         url: "cat_subcat",
+        method: "Get",
+      }),
+    }),
+    //home list random products
+    getCategoriesHome: builder.query({
+      query: () => ({
+        url: "HomeListApi",
         method: "Get",
       }),
     }),
@@ -155,6 +162,7 @@ export const api = createApi({
 export const {
   useLoginUserMutation,
   useGetCategoriesQuery,
+  useGetCategoriesHomeQuery,
   useGetCategoryWiseProductsQuery,
   useAddToCartMutation,
   useAddAddressMutation,

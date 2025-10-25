@@ -5,6 +5,7 @@ import { useLocation } from "react-router-dom";
 import { useGetCategoryWiseProductsQuery } from "../../store/api";
 import { skipToken } from "@reduxjs/toolkit/query";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 export default function ProductList() {
   const user_id = localStorage.getItem("userId");
@@ -45,11 +46,12 @@ export default function ProductList() {
         // Double-check that this data is for the currently selected subcategory
         // This prevents race conditions where old API responses update the state
         setProducts(productData.productslist);
+        
         console.log(productData.productslist);
       }
     }
   }, [selectedSub, productData, isFetching]);
-
+console.log("category wise ", useGetCategoryWiseProductsQuery());
   // Handle subcategory selection
   const handleSubcategoryClick = (subId) => {
     console.log("Selecting subcategory:", subId);
@@ -138,7 +140,7 @@ export default function ProductList() {
               )}
               {/* Products grid */}
               {!isFetching && !error && (
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-6 lg2:grid-cols-8 gap-2">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-6 3xl:grid-cols-8 gap-2">
                   {products.map((item) => {
                     // console.log("product items", item);
                     // console.log("cart items", cart.items);
@@ -274,8 +276,20 @@ export default function ProductList() {
                                 <button
                                   className="pr-2 py-1.5 text-sm font-semibold transition-colors  disabled:hover:bg-gray-400"
                                   onClick={() => {
-                                    !isLoading && increment(cartItem);
-                                    // console.log("increment item", cartItem)
+                                    if(item.quantity< cartItem.quantity){
+                                      toast.warning("You are reaching the maximum limit.")
+                                      return
+                                    }else{
+                                           !isLoading && increment(cartItem);
+                                           console.log(
+                                             "increment item",
+                                             cartItem.quantity
+                                           );
+                                           console.log(
+                                             "increment item",
+                                             item.quantity
+                                           );
+                                    }
                                   }}
                                   disabled={isLoading}
                                 >

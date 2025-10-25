@@ -25,21 +25,20 @@ const items = [
 
 
   return (
-    <section className="w-full py-6">
+    <section className="w-full py-2 xsm:py-0">
       <div className="mx-auto max-w-7xl px-1 sm:px-1 lg:px-6">
-        <div className="grid gap-4 grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-1 xsm:gap-4 grid-cols-3 lg:grid-cols-3">
           {items.map((card, idx) => (
             <div
-            //  key={idx}
-            className="rounded-xl overflow-hidden shadow">
+              //  key={idx}
+              className="rounded-xl overflow-hidden shadow"
+            >
               <img
                 src={card.img}
                 alt={card.alt}
-                className="w-full h-full object-cover"
+                className="w-full h-20 xsm:h-52 object-fit"
                 // onClick={() => navigate("/categoryProduct")}
-                onClick={() =>
-                  navigate(`/categoryProduct?category=${card.category}`)
-                }
+                onClick={() => navigate(`/seeall/${card.category}`)}
               />
             </div>
           ))}

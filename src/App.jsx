@@ -34,6 +34,7 @@ import CategoryWithProducts from "./Pages/ProductCategory/CategoryProduct";
 import CategoryList from "./Pages/ProductCategory/CategoryList";
 import SeeAll from "./Pages/SeeAll/SeeAll";
 import ProductDetails from "./Pages/SeeAll/ProductDetails";
+import SearchPage from "./Component/SearchPage";
 
 function App() {
   return (
@@ -66,6 +67,8 @@ function App() {
           {/* ✅ Add this new route here */}
           <Route path="/seeall/:categoryTitle" element={<SeeAll />} />
           <Route path="/productDetails/:id" element={<ProductDetails />} />
+          <Route path="/search" element={<SearchPage />} />
+
 
           {/* <Route
             path="category/:categoryName"

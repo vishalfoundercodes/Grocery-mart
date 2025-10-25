@@ -9,7 +9,7 @@ import TazaAmul from "../../../src/assets/Categories/Amul/TazaAmul.avif";
 import whiteBread from "../../../src/assets/Categories/Amul/whiteBread.avif";
 import CategorySection from "./Category";
 import { useNavigate } from "react-router-dom";
-import { useGetCategoriesQuery } from "../../store/api";
+import { useGetCategoriesHomeQuery } from "../../store/api";
 
 
 
@@ -119,15 +119,27 @@ const snacksProducts = [
 ];
 
 export default function MilkCategories() {
-    const { data, isLoading, isError } = useGetCategoriesQuery();
-  const navigate=useNavigate()
-    if (isLoading) return <p className="text-center">Loading categories...</p>;
-    if (isError)
-      return (
-        <p className="text-center text-red-500">Failed to load categories.</p>
-      );
-       const categories = data?.categories || [];
-      //  console.log("category data:",categories)
+  const { data, isLoading, isError } = useGetCategoriesHomeQuery();
+  const navigate = useNavigate();
+  if (isLoading) return <p className="text-center">Loading categories...</p>;
+  if (isError)
+    return (
+      <p className="text-center text-red-500">Failed to load categories.</p>
+    );
+  // console.log("category data:", data);
+  // console.log("category data:", useGetCategoriesHomeQuery());
+  // Build a normalized array of sections for easy mapping
+  const categories = [
+    {
+      heading: data?.all_products_section?.heading || "All Products",
+      products: data?.all_products_section?.products || [],
+    },
+    {
+      heading: data?.featured_section?.heading || "Featured Products",
+      products: data?.featured_section?.products || [],
+    },
+  ].filter((section) => section.products.length > 0); // remove empty ones
+
   return (
     <div className="z-0">
       {/* <CategorySection
@@ -147,11 +159,11 @@ export default function MilkCategories() {
         onSeeAll={(title) => navigate(`/seeall`)}
       /> */}
 
-      {categories.map((cat) => (
+      {categories.map((cat, index) => (
         <CategorySection
-          // key={cat.id}
-          title={cat.title}
-          products={cat.subcategory_first || []}
+          key={index}
+          title={cat.heading}
+          products={cat.products}
           onSeeAll={(title) => navigate(`/seeall/${encodeURIComponent(title)}`)}
         />
       ))}

@@ -8,6 +8,7 @@ import { useCart } from "../Context/CartContext"; // adjust path
 import CartSidebar from "../Context/CartSidebar"; // adjust path
 import { useLocation } from "../Context/LocationContext";
 import CartManager from "../Context/CartManager";
+import SearchBar from "./SearchBar";
 
 
 
@@ -82,6 +83,7 @@ export default function Header({ onSearchResults }) {
         );
         const data = await res.json();
 
+        console.log(data)
         if (data.success && Array.isArray(data.search)) {
           const mapped = data.search.map((p) => ({ 
             id: p.id,
@@ -107,7 +109,7 @@ export default function Header({ onSearchResults }) {
   }, [searchTerm, onSearchResults]);
 
   return (
-    <header className="w-full shadow-md bg-white sticky top-0 z-20 ">
+    <header className="w-full border border-lightGray bg-white sticky top-0 z-20 ">
       <div className="mx-auto px-1 sm:px-4 py-3 md:py-4 ">
         {/* ---------- Mobile Layout (<= 500px) ---------- */}
         <div className="flex items-center justify-between sm:hidden ">
@@ -179,7 +181,7 @@ export default function Header({ onSearchResults }) {
 
         {/* Search Bar for mobile */}
         <div className="mt-2 sm:hidden">
-          <div className="relative flex items-center w-full bg-gray-100 rounded-lg px-3 py-2">
+          {/* <div className="relative flex items-center w-full bg-gray-100 rounded-lg px-3 py-2">
             <Search className="text-gray-500 w-5 h-5 mr-2" />
             <input
               type="text"
@@ -189,32 +191,43 @@ export default function Header({ onSearchResults }) {
               //  className="w-full bg-transparent text-sm focus:outline-none placeholder-gray-400"
               placeholder="Search 'milk'"
             />
-          </div>
+          </div> */}
+          <SearchBar onSearchResults={onSearchResults} />
         </div>
 
         {/* ---------- Desktop Layout (> 500px) ---------- */}
         <div className="hidden sm:flex items-center justify-between">
           {/* Left Section */}
           <div className="flex items-center gap-4">
-            <span
-              className="text-3xl font-bold cursor-pointer"
-              onClick={() => navigate("/")}
-            >
-              <span className="text-yellow-400">Grocery</span>
-              <span className="text-green-600">mart</span>
-            </span>
-            <div onClick={() => setLocationOpen(true)}>
-              <p className="font-semibold">Delivery in 12 minutes</p>
-              <p className="text-sm text-gray-600 truncate max-w-[180px]">
-                {/* 3/62, Janki Vihar Colony, Jankip... */}
-                {address || "Select your address"}
-              </p>
+            <div className="flex items-center gap-3">
+              {/* Logo */}
+              <span
+                className="text-sm font-bold cursor-pointer"
+                onClick={() => navigate("/")}
+              >
+                <span className="text-yellow-400">Grocery</span>
+                <span className="text-green-600">mart</span>
+              </span>
+
+              {/* Divider */}
+              <div className="w-px h-8 bg-gray-300"></div>
+
+              {/* Left side (delivery + address) */}
+              <div
+                className="flex flex-col cursor-pointer"
+                onClick={() => setLocationOpen(true)}
+              >
+                <p className="font-semibold text-sm">Delivery in 12 minutes</p>
+                <p className="text-xs text-gray-600 truncate max-w-[200px]">
+                  {address || "select your location"}
+                </p>
+              </div>
             </div>
           </div>
 
           {/* Search Bar */}
           <div className="flex-1 mx-4">
-            <div className="relative flex items-center w-full bg-gray-100 rounded-lg px-3 py-2 overflow-hidden">
+            {/* <div className="relative flex items-center w-full bg-gray-100 rounded-lg px-3 py-2 overflow-hidden">
               <Search className="text-gray-500 w-5 h-5 mr-2" />
               <input
                 type="text"
@@ -224,7 +237,6 @@ export default function Header({ onSearchResults }) {
                 placeholder={searchTerm ? "" : placeholders[index]} // ✅ hide when typing
               />
 
-              {/* Animated Placeholder Overlay */}
               {searchTerm === "" && ( // ✅ Only show when empty
                 <div className="absolute left-10 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none h-5 overflow-hidden">
                   <div
@@ -244,10 +256,10 @@ export default function Header({ onSearchResults }) {
                   </div>
                 </div>
               )}
-            </div>
+            </div> */}
+            <SearchBar onSearchResults={onSearchResults} />
           </div>
 
-          {/* Right Section */}
           <div className="flex items-center gap-4">
             {!userid ? (
               <button

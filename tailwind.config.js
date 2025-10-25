@@ -19,6 +19,7 @@ export default {
     extend: {
       colors: {
         oldsilver: "#828282", // 👈 Added custom color
+        lightGray: "#EEEEEE",
       },
       keyframes: {
         translateAnimation: {
